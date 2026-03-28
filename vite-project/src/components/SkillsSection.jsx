@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const skills = [
   {
@@ -73,6 +73,17 @@ const skills = [
 export const SkillsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const go = (dir) => {
     if (animating) return;
@@ -93,8 +104,6 @@ export const SkillsSection = () => {
   const rightIdx = (activeIndex + 1) % skills.length;
   const active = skills[activeIndex];
   const { glow, title, border, tagBorder, tagBg } = active.color;
-
-  const isDark = document.documentElement.classList.contains("dark");
 
   const centerStyle = {
     width: "clamp(220px, 60vw, 300px)",
@@ -120,7 +129,7 @@ export const SkillsSection = () => {
   };
 
   return (
-    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px" }}>
+    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px", overflow: "hidden" }}>
       <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
         My <span className="text-primary">Skills</span>
       </h2>

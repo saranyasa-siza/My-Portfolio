@@ -160,17 +160,7 @@
   padding: 0;
   text-align: center;
 }
-.no-transition * {
-  transition: none !important;
-}
+
 html {
-  transition: background-color 0.5s, color 0.5s;
-}
-
-* {
-  transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-.no-transition * {
-  transition: none !important;
+  transition: background-color 0.3s, color 0.3s;
 }
