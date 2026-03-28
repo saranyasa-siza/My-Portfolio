@@ -2,11 +2,11 @@ import { ArrowUp } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="py-12 px-4 bg-card relative border-t border-border mt-12 pt-8 flex flex-wrap justify-between items-center">
-      <p className="text-sm text-muted-foreground">
+    <footer className="py-8 px-4 bg-card border-t border-border mt-12 flex flex-col sm:flex-row flex-wrap justify-between items-center gap-4">
+      <p className="text-sm text-muted-foreground text-center sm:text-left">
         &copy; {new Date().getFullYear()} Saranya Sa.
       </p>
-      <p className="text-sm text-primary italic absolute left-1/2 -translate-x-1/2">
+      <p className="text-sm text-primary italic text-center">
         I don't just build projects… I build impact.
       </p>
       <a

@@ -97,8 +97,8 @@ export const SkillsSection = () => {
   const isDark = document.documentElement.classList.contains("dark");
 
   const centerStyle = {
-    width: "300px",
-    minHeight: "390px",
+    width: "clamp(220px, 60vw, 300px)",
+    minHeight: "360px",
     border: `1px solid ${border}`,
     background: isDark
       ? `radial-gradient(ellipse at 50% 25%, rgba(${glow},0.42) 0%, rgba(${glow},0.15) 42%, rgba(8,8,18,0.75) 75%)`
@@ -120,15 +120,15 @@ export const SkillsSection = () => {
   };
 
   return (
-    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 0 80px" }}>
+    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px" }}>
       <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
         My <span className="text-primary">Skills</span>
       </h2>
 
       <style>{`
         .sk-side {
-          width: 240px;
-          min-height: 320px;
+          width: 200px;
+          min-height: 300px;
           background: rgba(128,128,128,0.05);
           border: 1px solid rgba(128,128,128,0.12);
           opacity: 0.55;
@@ -139,21 +139,26 @@ export const SkillsSection = () => {
           align-items: center;
           text-align: center;
           border-radius: 24px;
-          padding: 36px 24px;
+          padding: 28px 16px;
           flex-shrink: 0;
           transition: opacity 0.25s;
         }
+        @media (min-width: 640px) {
+          .sk-side { width: 240px; min-height: 320px; padding: 36px 24px; }
+        }
         .sk-side:hover { opacity: 0.78; }
-        .sk-icon { width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px; }
+        .sk-icon { width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
+        @media (min-width: 640px) { .sk-icon { width:74px;height:74px;margin:0 auto 18px; } }
         .sk-arrow {
-          width:44px;height:44px;border-radius:50%;
+          width:38px;height:38px;border-radius:50%;
           background:rgba(128,128,128,0.08);
           border:1px solid rgba(128,128,128,0.15);
           color:rgba(128,128,128,0.7);
           cursor:pointer;display:flex;align-items:center;justify-content:center;
-          margin:0 18px;flex-shrink:0;
+          margin:0 8px;flex-shrink:0;
           transition:background 0.2s,color 0.2s;
         }
+        @media (min-width: 640px) { .sk-arrow { width:44px;height:44px;margin:0 18px; } }
         .sk-arrow:hover{background:rgba(128,128,128,0.15);color:#333;}
         .sk-dot {
           width:7px;height:7px;border-radius:50%;
@@ -174,7 +179,7 @@ export const SkillsSection = () => {
         .dark .sk-dot { background:rgba(255,255,255,0.18); }
       `}</style>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflowX: "hidden" }}>
         {/* Left arrow */}
         <button className="sk-arrow" onClick={() => go(-1)} aria-label="Previous">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
