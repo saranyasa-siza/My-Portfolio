@@ -155,6 +155,10 @@
   box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.3);
 }
 
+.no-transition, .no-transition * {
+  transition: none !important;
+}
+
 #root {
   max-width: 100%;
   margin: 0 auto;

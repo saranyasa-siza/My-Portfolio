@@ -73,16 +73,26 @@ const skills = [
 export const SkillsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return document.documentElement.classList.contains("dark");
+  });
 
   useEffect(() => {
+    // Block transitions on first paint to prevent flash
+    document.documentElement.classList.add("no-transition");
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove("no-transition");
+    }, 100);
+
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
     });
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   const go = (dir) => {
@@ -129,7 +139,7 @@ export const SkillsSection = () => {
   };
 
   return (
-    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px", overflow: "hidden" }}>
+    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px", overflowX: "hidden", overflowY: "visible" }}>
       <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
         My <span className="text-primary">Skills</span>
       </h2>
@@ -188,7 +198,7 @@ export const SkillsSection = () => {
         .dark .sk-dot { background:rgba(255,255,255,0.18); }
       `}</style>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflow: "visible", padding: "20px 0" }}>
         {/* Left arrow */}
         <button className="sk-arrow" onClick={() => go(-1)} aria-label="Previous">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
