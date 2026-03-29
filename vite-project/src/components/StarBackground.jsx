@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export const StarBackground = () => {
   const [stars, setStars] = useState([]);
@@ -6,6 +6,9 @@ export const StarBackground = () => {
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")
   );
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const bgRef = useRef(null);
+  const starsRef = useRef(null);
 
   useEffect(() => {
     generateStars();
@@ -18,8 +21,16 @@ export const StarBackground = () => {
     );
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
 
+    const handleMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;  // -1 to 1
+      const y = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+      setMousePos({ x, y });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
       observer.disconnect();
     };
   }, []);
@@ -31,9 +42,9 @@ export const StarBackground = () => {
       size: Math.random() * 3 + 1,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      opacity: Math.random() * 0.6 + 0.4,
       twinkleDuration: Math.random() * 3 + 2,
       twinkleDelay: Math.random() * 5,
+      parallaxSpeed: Math.random() * 15 + 5, // px shift per unit mouse move
     })));
   };
 
@@ -50,25 +61,31 @@ export const StarBackground = () => {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Space background + zoom — dark mode only */}
-      {isDark && (
+
+      {/* Background image — dark mode: Firefly, light mode: plain */}
+      {isDark ? (
         <>
+          {/* Parallax bg layer */}
           <div
+            ref={bgRef}
             style={{
               position: "absolute",
-              inset: 0,
-              backgroundImage: "url('/projects/space2.jpg')",
+              inset: "-5%",
+              backgroundImage: "url('/projects/Firefly.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
               animation: "bgZoom 20s ease-in-out infinite alternate",
               transformOrigin: "center center",
+              transform: `translate(${mousePos.x * -12}px, ${mousePos.y * -12}px)`,
+              transition: "transform 0.1s ease-out",
             }}
           />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+          {/* Overlay */}
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
         </>
-      )}
+      ) : null}
 
-      {/* Stars — dark mode only */}
+      {/* Twinkling stars with parallax — dark mode only */}
       {isDark && stars.map((star) => (
         <div
           key={star.id}
@@ -76,17 +93,18 @@ export const StarBackground = () => {
             position: "absolute",
             width: star.size + "px",
             height: star.size + "px",
-            left: star.x + "%",
-            top: star.y + "%",
+            left: `calc(${star.x}% + ${mousePos.x * -star.parallaxSpeed * 0.3}px)`,
+            top: `calc(${star.y}% + ${mousePos.y * -star.parallaxSpeed * 0.3}px)`,
             borderRadius: "50%",
             background: "white",
             boxShadow: `0 0 ${star.size * 3}px ${star.size}px rgba(255,255,255,0.6)`,
             animation: `twinkle ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`,
+            transition: "left 0.1s ease-out, top 0.1s ease-out",
           }}
         />
       ))}
 
-      {/* Meteors — original behavior, dark mode only */}
+      {/* Meteors — dark mode only, original behavior */}
       {isDark && meteors.map((meteor) => (
         <div
           key={meteor.id}
