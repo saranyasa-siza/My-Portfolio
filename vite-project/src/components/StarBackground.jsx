@@ -49,13 +49,15 @@ export const StarBackground = () => {
   };
 
   const generateMeteors = () => {
-    setMeteors(Array.from({ length: 4 }, (_, i) => ({
+    setMeteors(Array.from({ length: 8 }, (_, i) => ({
       id: i,
-      size: Math.random() * 2 + 1,
-      x: Math.random() * 100,
-      y: Math.random() * 20,
-      delay: Math.random() * 15,
-      animationDuration: Math.random() * 3 + 3,
+      x: Math.random() * 120 - 10,
+      y: Math.random() * 60 - 10,
+      length: Math.random() * 180 + 80,
+      thickness: Math.random() * 2 + 1,
+      delay: Math.random() * 18,
+      duration: Math.random() * 2.5 + 1.5,
+      opacity: Math.random() * 0.5 + 0.5,
     })));
   };
 
@@ -70,14 +72,14 @@ export const StarBackground = () => {
             ref={bgRef}
             style={{
               position: "absolute",
-              inset: "-5%",
+              inset: "-8%",
               backgroundImage: "url('/projects/Firefly.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              animation: "bgZoom 20s ease-in-out infinite alternate",
+              animation: "bgZoom 16s ease-in-out infinite alternate",
               transformOrigin: "center center",
               transform: `translate(${mousePos.x * -12}px, ${mousePos.y * -12}px)`,
-              transition: "transform 0.1s ease-out",
+              transition: "transform 0.12s ease-out",
             }}
           />
           {/* Overlay */}
@@ -104,18 +106,27 @@ export const StarBackground = () => {
         />
       ))}
 
-      {/* Meteors — dark mode only, original behavior */}
+      {/* Space meteors — diagonal streaks with glowing tail */}
       {isDark && meteors.map((meteor) => (
         <div
           key={meteor.id}
-          className="meteor animate-meteor"
           style={{
-            width: meteor.size * 50 + "px",
-            height: meteor.size * 2 + "px",
+            position: "absolute",
             left: meteor.x + "%",
             top: meteor.y + "%",
-            animationDelay: meteor.delay + "s",
-            animationDuration: meteor.animationDuration + "s",
+            width: meteor.length + "px",
+            height: meteor.thickness + "px",
+            borderRadius: "999px",
+            background: `linear-gradient(to right,
+              rgba(255,255,255,0) 0%,
+              rgba(180,220,255,0.3) 30%,
+              rgba(220,240,255,0.85) 70%,
+              rgba(255,255,255,1) 100%)`,
+            boxShadow: `0 0 6px 2px rgba(180,220,255,0.4), 0 0 12px 4px rgba(255,255,255,0.15)`,
+            opacity: meteor.opacity,
+            transform: "rotate(-35deg)",
+            transformOrigin: "right center",
+            animation: `spaceMeteor ${meteor.duration}s linear ${meteor.delay}s infinite`,
           }}
         />
       ))}
