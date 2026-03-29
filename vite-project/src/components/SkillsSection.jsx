@@ -96,11 +96,13 @@ export const SkillsSection = () => {
   }, []);
 
   const touchStartX = useRef(null);
+  const dragStartX = useRef(null);
+  const isDragging = useRef(false);
 
+  // Touch swipe (mobile)
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
-
   const handleTouchEnd = (e) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
@@ -108,19 +110,37 @@ export const SkillsSection = () => {
     touchStartX.current = null;
   };
 
+  // Mouse drag swipe (desktop)
+  const handleMouseDown = (e) => {
+    dragStartX.current = e.clientX;
+    isDragging.current = false;
+  };
+  const handleMouseMove = (e) => {
+    if (dragStartX.current === null) return;
+    if (Math.abs(e.clientX - dragStartX.current) > 5) isDragging.current = true;
+  };
+  const handleMouseUp = (e) => {
+    if (dragStartX.current === null) return;
+    const diff = dragStartX.current - e.clientX;
+    if (Math.abs(diff) > 50) go(diff > 0 ? 1 : -1);
+    dragStartX.current = null;
+    isDragging.current = false;
+  };
+  const handleMouseLeave = () => { dragStartX.current = null; isDragging.current = false; };
+
   const go = (dir) => {
     if (animating) return;
     setAnimating(true);
     setTimeout(() => {
       setActiveIndex((i) => (i + dir + skills.length) % skills.length);
       setAnimating(false);
-    }, 200);
+    }, 300);
   };
 
   const jumpTo = (i) => {
     if (animating || i === activeIndex) return;
     setAnimating(true);
-    setTimeout(() => { setActiveIndex(i); setAnimating(false); }, 200);
+    setTimeout(() => { setActiveIndex(i); setAnimating(false); }, 300);
   };
 
   const leftIdx = (activeIndex - 1 + skills.length) % skills.length;
@@ -138,9 +158,9 @@ export const SkillsSection = () => {
     boxShadow: isDark
       ? `0 0 72px 16px rgba(${glow},0.26), 0 0 160px 50px rgba(${glow},0.1)`
       : `0 0 40px 8px rgba(${glow},0.15), 0 4px 24px rgba(0,0,0,0.08)`,
-    transition: "background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease, opacity 0.2s, transform 0.2s",
-    opacity: animating ? 0.55 : 1,
-    transform: animating ? "scale(0.97)" : "scale(1.04)",
+    transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+    opacity: animating ? 0.4 : 1,
+    transform: animating ? "scale(0.94) translateY(6px)" : "scale(1.04)",
     zIndex: 2,
     display: "flex",
     flexDirection: "column",
@@ -152,10 +172,7 @@ export const SkillsSection = () => {
   };
 
   return (
-    <section id="skills" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px", overflowX: "hidden", overflowY: "visible" }}>
-      <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-        My <span className="text-primary">Skills</span>
-      </h2>
+    <section id="skills" style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 16px 80px", overflowX: "hidden", overflowY: "visible" }}>
 
       <style>{`
         .sk-side {
@@ -173,51 +190,55 @@ export const SkillsSection = () => {
           border-radius: 24px;
           padding: 28px 16px;
           flex-shrink: 0;
-          transition: opacity 0.25s;
+          transition: opacity 0.35s ease, transform 0.35s ease;
         }
-        @media (min-width: 640px) {
-          .sk-side { display: flex; }
-        }
-        @media (min-width: 768px) {
-          .sk-side { width: 240px; min-height: 320px; padding: 36px 24px; }
-        }
-        .sk-side:hover { opacity: 0.78; }
-        .sk-icon { width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
+        @media (min-width: 640px) { .sk-side { display: flex; } }
+        @media (min-width: 768px) { .sk-side { width: 240px; min-height: 320px; padding: 36px 24px; } }
+        .sk-side:hover { opacity: 0.82; transform: scale(0.89); }
+        .sk-icon { width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;transition:transform 0.3s ease; }
         @media (min-width: 640px) { .sk-icon { width:74px;height:74px;margin:0 auto 18px; } }
         .sk-arrow {
-          width:36px;height:36px;border-radius:50%;
+          width:42px;height:42px;border-radius:50%;
           background:rgba(128,128,128,0.08);
-          border:1px solid rgba(128,128,128,0.15);
+          border:1px solid rgba(128,128,128,0.18);
           color:rgba(128,128,128,0.7);
           cursor:pointer;display:none;align-items:center;justify-content:center;
           margin:0 6px;flex-shrink:0;
-          transition:background 0.2s,color 0.2s;
+          transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
           touch-action: manipulation;
         }
-        @media (min-width: 640px) { .sk-arrow { display:flex; width:44px;height:44px;margin:0 14px; } }
-        @media (min-width: 768px) { .sk-arrow { margin:0 18px; } }
-        .sk-arrow:hover{background:rgba(128,128,128,0.15);color:#333;}
+        @media (min-width: 640px) { .sk-arrow { display:flex; width:46px;height:46px;margin:0 14px; } }
+        @media (min-width: 768px) { .sk-arrow { margin:0 20px; } }
+        .sk-arrow:hover { background:rgba(128,128,128,0.18); color:#333; transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+        .sk-arrow:active { transform:scale(0.93); }
         .sk-dot {
           width:8px;height:8px;border-radius:50%;
           background:rgba(128,128,128,0.25);
           cursor:pointer;
-          transition:background 0.35s, transform 0.35s;
+          transition: background 0.35s ease, transform 0.3s ease;
           touch-action: manipulation;
         }
-        .dark .sk-side {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-        .dark .sk-arrow {
-          background:rgba(255,255,255,0.05);
-          border:1px solid rgba(255,255,255,0.1);
-          color:rgba(255,255,255,0.6);
-        }
-        .dark .sk-arrow:hover{background:rgba(255,255,255,0.1);color:#fff;}
+        .sk-dot:hover { transform: scale(1.4); }
+        .dark .sk-side { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); }
+        .dark .sk-arrow { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.6); }
+        .dark .sk-arrow:hover { background:rgba(255,255,255,0.12); color:#fff; box-shadow:0 4px 16px rgba(0,0,0,0.3); }
         .dark .sk-dot { background:rgba(255,255,255,0.18); }
+        .sk-carousel { cursor: grab; user-select: none; }
+        .sk-carousel:active { cursor: grabbing; }
       `}</style>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflow: "visible", padding: "20px 0" }}>
+      <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+        My <span className="text-primary">Skills</span>
+      </h2>
+
+      <div
+        className="sk-carousel"
+        style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflow: "visible", padding: "20px 0" }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
         {/* Left arrow */}
         <button className="sk-arrow" onClick={() => go(-1)} aria-label="Previous">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
