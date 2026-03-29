@@ -3,13 +3,25 @@ import { useEffect, useState } from "react";
 export const StarBackground = () => {
   const [stars, setStars] = useState([]);
   const [meteors, setMeteors] = useState([]);
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark")
+  );
 
   useEffect(() => {
     generateStars();
     generateMeteors();
     const handleResize = () => generateStars();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    const observer = new MutationObserver(() =>
+      setIsDark(document.documentElement.classList.contains("dark"))
+    );
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer.disconnect();
+    };
   }, []);
 
   const generateStars = () => {
@@ -26,35 +38,38 @@ export const StarBackground = () => {
   };
 
   const generateMeteors = () => {
-    setMeteors(Array.from({ length: 6 }, (_, i) => ({
+    setMeteors(Array.from({ length: 4 }, (_, i) => ({
       id: i,
       size: Math.random() * 2 + 1,
       x: Math.random() * 100,
-      y: Math.random() * 30,
-      delay: Math.random() * 20,
-      duration: Math.random() * 3 + 3,
+      y: Math.random() * 20,
+      delay: Math.random() * 15,
+      animationDuration: Math.random() * 3 + 3,
     })));
   };
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Space background with zoom effect */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "url('/projects/space2.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          animation: "bgZoom 20s ease-in-out infinite alternate",
-          transformOrigin: "center center",
-        }}
-      />
-      {/* Dark overlay so text stays readable */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+      {/* Space background + zoom — dark mode only */}
+      {isDark && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('/projects/space2.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              animation: "bgZoom 20s ease-in-out infinite alternate",
+              transformOrigin: "center center",
+            }}
+          />
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+        </>
+      )}
 
-      {/* Twinkling stars */}
-      {stars.map((star) => (
+      {/* Stars — dark mode only */}
+      {isDark && stars.map((star) => (
         <div
           key={star.id}
           style={{
@@ -71,20 +86,18 @@ export const StarBackground = () => {
         />
       ))}
 
-      {/* Meteors */}
-      {meteors.map((meteor) => (
+      {/* Meteors — original behavior, dark mode only */}
+      {isDark && meteors.map((meteor) => (
         <div
           key={meteor.id}
+          className="meteor animate-meteor"
           style={{
-            position: "absolute",
-            width: meteor.size * 60 + "px",
+            width: meteor.size * 50 + "px",
             height: meteor.size * 2 + "px",
             left: meteor.x + "%",
             top: meteor.y + "%",
-            borderRadius: "50%",
-            background: "linear-gradient(to right, white, rgba(255,255,255,0.6), transparent)",
-            boxShadow: "0 0 8px 2px rgba(255,255,255,0.3)",
-            animation: `meteor ${meteor.duration}s linear ${meteor.delay}s infinite`,
+            animationDelay: meteor.delay + "s",
+            animationDuration: meteor.animationDuration + "s",
           }}
         />
       ))}
