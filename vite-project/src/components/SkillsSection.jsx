@@ -189,12 +189,12 @@ export const SkillsSection = () => {
           background:rgba(128,128,128,0.08);
           border:1px solid rgba(128,128,128,0.15);
           color:rgba(128,128,128,0.7);
-          cursor:pointer;display:flex;align-items:center;justify-content:center;
+          cursor:pointer;display:none;align-items:center;justify-content:center;
           margin:0 6px;flex-shrink:0;
           transition:background 0.2s,color 0.2s;
           touch-action: manipulation;
         }
-        @media (min-width: 640px) { .sk-arrow { width:44px;height:44px;margin:0 14px; } }
+        @media (min-width: 640px) { .sk-arrow { display:flex; width:44px;height:44px;margin:0 14px; } }
         @media (min-width: 768px) { .sk-arrow { margin:0 18px; } }
         .sk-arrow:hover{background:rgba(128,128,128,0.15);color:#333;}
         .sk-dot {
