@@ -116,7 +116,7 @@ export const SkillsSection = () => {
   const { glow, title, border, tagBorder, tagBg } = active.color;
 
   const centerStyle = {
-    width: "clamp(220px, 60vw, 300px)",
+    width: "clamp(260px, 75vw, 300px)",
     minHeight: "360px",
     border: `1px solid ${border}`,
     background: isDark
@@ -146,14 +146,14 @@ export const SkillsSection = () => {
 
       <style>{`
         .sk-side {
-          width: 200px;
+          width: 220px;
           min-height: 300px;
           background: rgba(128,128,128,0.05);
           border: 1px solid rgba(128,128,128,0.12);
           opacity: 0.55;
           transform: scale(0.86);
           cursor: pointer;
-          display: flex;
+          display: none;
           flex-direction: column;
           align-items: center;
           text-align: center;
@@ -163,27 +163,33 @@ export const SkillsSection = () => {
           transition: opacity 0.25s;
         }
         @media (min-width: 640px) {
+          .sk-side { display: flex; }
+        }
+        @media (min-width: 768px) {
           .sk-side { width: 240px; min-height: 320px; padding: 36px 24px; }
         }
         .sk-side:hover { opacity: 0.78; }
-        .sk-icon { width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
+        .sk-icon { width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
         @media (min-width: 640px) { .sk-icon { width:74px;height:74px;margin:0 auto 18px; } }
         .sk-arrow {
-          width:38px;height:38px;border-radius:50%;
+          width:36px;height:36px;border-radius:50%;
           background:rgba(128,128,128,0.08);
           border:1px solid rgba(128,128,128,0.15);
           color:rgba(128,128,128,0.7);
           cursor:pointer;display:flex;align-items:center;justify-content:center;
-          margin:0 8px;flex-shrink:0;
+          margin:0 6px;flex-shrink:0;
           transition:background 0.2s,color 0.2s;
+          touch-action: manipulation;
         }
-        @media (min-width: 640px) { .sk-arrow { width:44px;height:44px;margin:0 18px; } }
+        @media (min-width: 640px) { .sk-arrow { width:44px;height:44px;margin:0 14px; } }
+        @media (min-width: 768px) { .sk-arrow { margin:0 18px; } }
         .sk-arrow:hover{background:rgba(128,128,128,0.15);color:#333;}
         .sk-dot {
-          width:7px;height:7px;border-radius:50%;
+          width:8px;height:8px;border-radius:50%;
           background:rgba(128,128,128,0.25);
           cursor:pointer;
           transition:background 0.35s, transform 0.35s;
+          touch-action: manipulation;
         }
         .dark .sk-side {
           background: rgba(255,255,255,0.02);

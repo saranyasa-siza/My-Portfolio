@@ -2,7 +2,7 @@ import { Code, User } from "lucide-react";
 
 export const AboutSection = () => {
   return (
-    <section id="about" className="py-24 px-4 relative">
+    <section id="about" className="py-16 md:py-24 px-4 relative">
       {" "}
       <div className="container mx-auto max-w-5xl">
         <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
@@ -21,11 +21,11 @@ export const AboutSection = () => {
               applications using modern technologies.
             </p> */}
 
-            <p className="text-muted-foreground" style={{ textAlign: "left" }}>
+            <p className="text-muted-foreground text-left text-sm sm:text-base">
             I am a B.Tech student in Electronics and Communication Engineering with skills in Python, C/C++, and web technologies (HTML, CSS, JavaScript), along with basic hardware knowledge & circuit designing. I have a growing interest in AI-ML and Generative AI, and I am passionate about building efficient, user-focused solutions while continuously expanding my technical expertise.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 justify-start">
               <a href="#contact" className="cosmic-button">
                 {" "}
                 Get In Touch
