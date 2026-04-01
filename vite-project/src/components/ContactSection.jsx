@@ -1,13 +1,12 @@
 import { Mail, MapPin, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import emailjs from "@emailjs/browser";
 
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 export const ContactSection = () => {
   const { toast } = useToast();
@@ -16,12 +15,20 @@ export const ContactSection = () => {
   const subtitleRef = useScrollReveal();
   const infoRef = useScrollReveal();
   const formRef = useScrollReveal();
+  const formElRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, e.target, PUBLIC_KEY)
+    const formData = new FormData(e.target);
+    const templateParams = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
       .then(() => {
         toast({
           title: "Message sent!",
