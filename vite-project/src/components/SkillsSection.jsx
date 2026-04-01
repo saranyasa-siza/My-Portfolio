@@ -206,12 +206,13 @@ export const SkillsSection = () => {
           background:rgba(128,128,128,0.08);
           border:1px solid rgba(128,128,128,0.18);
           color:rgba(128,128,128,0.7);
-          cursor:pointer;display:none;align-items:center;justify-content:center;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;
           margin:0 6px;flex-shrink:0;
           transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
           touch-action: manipulation;
         }
-        @media (min-width: 640px) { .sk-arrow { display:flex; width:46px;height:46px;margin:0 14px; } }
+        @media (max-width: 639px) { .sk-arrow { display: none; } }
+        @media (min-width: 640px) { .sk-arrow { width:46px;height:46px;margin:0 14px; } }
         @media (min-width: 768px) { .sk-arrow { margin:0 20px; } }
         .sk-arrow:hover { background:rgba(128,128,128,0.18); color:#333; transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
         .sk-arrow:active { transform:scale(0.93); }
@@ -226,9 +227,16 @@ export const SkillsSection = () => {
         .dark .sk-side { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); }
         .dark .sk-arrow { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.6); }
         .dark .sk-arrow:hover { background:rgba(255,255,255,0.12); color:#fff; box-shadow:0 4px 16px rgba(0,0,0,0.3); }
-        .dark .sk-dot { background:rgba(255,255,255,0.18); }
         .sk-carousel { cursor: grab; user-select: none; }
         .sk-carousel:active { cursor: grabbing; }
+        .sk-swipe-hint {
+          display: block;
+          font-size: 11px;
+          color: rgba(128,128,128,0.5);
+          margin-top: 12px;
+          letter-spacing: 0.5px;
+        }
+        @media (min-width: 640px) { .sk-swipe-hint { display: none; } }
       `}</style>
 
       <h2 ref={headingRef} className="reveal text-3xl md:text-4xl font-bold mb-12 text-center">
@@ -323,6 +331,7 @@ export const SkillsSection = () => {
           />
         ))}
       </div>
+      <span className="sk-swipe-hint">← swipe to explore →</span>
     </section>
   );
 };

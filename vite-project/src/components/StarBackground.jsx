@@ -67,7 +67,7 @@ export const StarBackground = () => {
       const dy = mouse.y - 0.5;
 
       // Smooth oscillating zoom — breathes in and out, never drifts
-      const globalZoom = 1 + Math.sin(time * 0.18) * 0.06;
+      const globalZoom = 1 + Math.sin(time * 0.2) * 0.5;
 
       for (let l = 0; l < layers.length; l++) {
         const layer = layers[l];
@@ -79,11 +79,13 @@ export const StarBackground = () => {
           const t = time * star.twinkleSpeed + star.twinkleOffset;
           const curve = twinkleCurve(t, star.twinkleSharpness);
           const opacity = star.twinkleMin + curve * (star.twinkleMax - star.twinkleMin);
-
           const cx = W / 2;
           const cy = H / 2;
-          let sx = ((star.x - 0.5) * W * zoom + cx + px + W) % W;
-          let sy = ((star.y - 0.5) * H * zoom + cy + py + H) % H;
+
+          // Expand the star field when zoomed out so edges stay filled
+          const fieldScale = Math.max(1, 1 / zoom);
+          let sx = ((star.x - 0.5) * W * zoom * fieldScale + cx + px + W) % W;
+          let sy = ((star.y - 0.5) * H * zoom * fieldScale + cy + py + H) % H;
           const size = star.size * zoom;
 
           // Core star
@@ -132,6 +134,29 @@ export const StarBackground = () => {
       targetMouse.y = 0.5;
     };
 
+    // Mobile gyroscope parallax
+    let gyroPermissionGranted = false;
+    const handleOrientation = (e) => {
+      if (e.gamma === null || e.beta === null) return;
+      // gamma = left/right tilt (-90 to 90), beta = front/back tilt (-180 to 180)
+      targetMouse.x = 0.5 + (e.gamma / 90) * 0.5;
+      targetMouse.y = 0.5 + ((e.beta - 30) / 90) * 0.5;
+    };
+
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) {
+      if (typeof DeviceOrientationEvent !== "undefined" &&
+          typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS 13+ requires permission
+        DeviceOrientationEvent.requestPermission()
+          .then((state) => {
+            if (state === "granted") window.addEventListener("deviceorientation", handleOrientation);
+          }).catch(() => {});
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation);
+      }
+    }
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
     window.addEventListener("resize", resize);
@@ -143,6 +168,7 @@ export const StarBackground = () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("deviceorientation", handleOrientation);
       window.removeEventListener("resize", resize);
     };
   }, []);
