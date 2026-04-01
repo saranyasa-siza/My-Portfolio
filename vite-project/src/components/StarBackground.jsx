@@ -1,87 +1,157 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export const StarBackground = () => {
-  const [stars, setStars] = useState([]);
-  const [meteors, setMeteors] = useState([]);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    generateStars();
-    generateMeteors();
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
 
-    const handleResize = () => generateStars();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    let W, H;
+    let layers = [];
+    let animId;
+    let time = 0;
+    const mouse = { x: 0.5, y: 0.5 };
+    const targetMouse = { x: 0.5, y: 0.5 };
+
+    const NUM_LAYERS = 4;
+    const DPR = window.devicePixelRatio || 1;
+
+    function resize() {
+      W = canvas.width = window.innerWidth * DPR;
+      H = canvas.height = window.innerHeight * DPR;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      buildLayers();
+    }
+
+    function buildLayers() {
+      layers = [];
+      for (let l = 0; l < NUM_LAYERS; l++) {
+        const depth = (l + 1) / NUM_LAYERS;
+        const count = Math.floor((W * H) / (DPR ** 2) / (8000 - l * 600));
+        const stars = Array.from({ length: count }, () => ({
+          x: Math.random(),
+          y: Math.random(),
+          size: (Math.random() * 1.2 + 0.4) * depth * DPR,
+          twinkleOffset: Math.random() * Math.PI * 2,
+          twinkleSpeed: Math.random() * 1.5 + 0.3,
+          twinkleMin: Math.random() * 0.05 + 0.02,
+          twinkleMax: Math.random() * 0.4 + 0.6,
+          twinkleSharpness: Math.random() * 3 + 1,
+        }));
+        layers.push({
+          depth,
+          parallaxStrength: depth * 60 * DPR,
+          stars,
+        });
+      }
+    }
+
+    function easeVec(curr, tgt, speed) {
+      curr.x += (tgt.x - curr.x) * speed;
+      curr.y += (tgt.y - curr.y) * speed;
+    }
+
+    function twinkleCurve(t, sharpness) {
+      const s = (Math.sin(t) + 1) / 2;
+      return Math.pow(s, sharpness);
+    }
+
+    function draw() {
+      time += 0.016;
+      easeVec(mouse, targetMouse, 0.04);
+      ctx.clearRect(0, 0, W, H);
+
+      const dx = mouse.x - 0.5;
+      const dy = mouse.y - 0.5;
+
+      // Smooth oscillating zoom — breathes in and out, never drifts
+      const globalZoom = 1 + Math.sin(time * 0.18) * 0.06;
+
+      for (let l = 0; l < layers.length; l++) {
+        const layer = layers[l];
+        const px = dx * layer.parallaxStrength;
+        const py = dy * layer.parallaxStrength;
+        const zoom = globalZoom * (1 + l * 0.015);
+
+        for (const star of layer.stars) {
+          const t = time * star.twinkleSpeed + star.twinkleOffset;
+          const curve = twinkleCurve(t, star.twinkleSharpness);
+          const opacity = star.twinkleMin + curve * (star.twinkleMax - star.twinkleMin);
+
+          const cx = W / 2;
+          const cy = H / 2;
+          let sx = ((star.x - 0.5) * W * zoom + cx + px + W) % W;
+          let sy = ((star.y - 0.5) * H * zoom + cy + py + H) % H;
+          const size = star.size * zoom;
+
+          // Core star
+          ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+          ctx.fillStyle = l >= 3 ? "#b8d4ff" : l === 2 ? "#d0e8ff" : "#ffffff";
+          ctx.beginPath();
+          ctx.arc(sx, sy, size, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Halo
+          if (size > 1.2 * DPR) {
+            ctx.globalAlpha = opacity * 0.18 * curve;
+            ctx.beginPath();
+            ctx.arc(sx, sy, size * (2.5 + curve * 1.5), 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Cross-spike on brightest foreground stars
+          if (l >= 2 && curve > 0.75 && size > 1.4 * DPR) {
+            const spikeLen = size * (4 + curve * 6);
+            const spikeAlpha = (curve - 0.75) * 4 * opacity * 0.6;
+            ctx.globalAlpha = spikeAlpha;
+            ctx.strokeStyle = l >= 3 ? "#b8d4ff" : "#d0e8ff";
+            ctx.lineWidth = 0.5 * DPR;
+            ctx.beginPath();
+            ctx.moveTo(sx - spikeLen, sy);
+            ctx.lineTo(sx + spikeLen, sy);
+            ctx.moveTo(sx, sy - spikeLen);
+            ctx.lineTo(sx, sy + spikeLen);
+            ctx.stroke();
+          }
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(draw);
+    }
+
+    const handleMouseMove = (e) => {
+      targetMouse.x = e.clientX / window.innerWidth;
+      targetMouse.y = e.clientY / window.innerHeight;
+    };
+
+    const handleMouseLeave = () => {
+      targetMouse.x = 0.5;
+      targetMouse.y = 0.5;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("resize", resize);
+
+    resize();
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
-  const generateStars = () => {
-    const numberOfStars = Math.floor(
-      (window.innerWidth * window.innerHeight) / 10000
-    );
-    setStars(Array.from({ length: numberOfStars }, (_, i) => ({
-      id: i,
-      size: Math.random() * 3 + 1,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      opacity: Math.random() * 0.5 + 0.5,
-      animationDuration: Math.random() * 4 + 2,
-    })));
-  };
-
-  const generateMeteors = () => {
-    setMeteors(Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 120 - 10,
-      y: Math.random() * 50 + 15,
-      length: Math.random() * 180 + 80,
-      thickness: Math.random() * 1.5 + 0.8,
-      delay: Math.random() * 20,
-      duration: Math.random() * 2.5 + 1.5,
-      opacity: Math.random() * 0.5 + 0.5,
-    })));
-  };
-
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Twinkling stars */}
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="star animate-pulse-subtle"
-          style={{
-            width: star.size + "px",
-            height: star.size + "px",
-            left: star.x + "%",
-            top: star.y + "%",
-            opacity: star.opacity,
-            animationDuration: star.animationDuration + "s",
-          }}
-        />
-      ))}
-
-      {/* Space meteors */}
-      {meteors.map((meteor) => (
-        <div
-          key={meteor.id}
-          style={{
-            position: "absolute",
-            left: meteor.x + "%",
-            top: meteor.y + "%",
-            width: meteor.length + "px",
-            height: meteor.thickness + "px",
-            borderRadius: "999px",
-            background: "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(180,220,255,0.3) 30%, rgba(220,240,255,0.85) 70%, rgba(255,255,255,1) 100%)",
-            boxShadow: "0 0 6px 2px rgba(180,220,255,0.4), 0 0 12px 4px rgba(255,255,255,0.15)",
-            opacity: meteor.opacity,
-            transform: "rotate(-35deg)",
-            transformOrigin: "right center",
-            animationDelay: meteor.delay + "s",
-            animationDuration: meteor.duration + "s",
-            animationName: "spaceMeteor",
-            animationTimingFunction: "linear",
-            animationIterationCount: "infinite",
-          }}
-        />
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ background: "transparent" }}
+    />
   );
 };

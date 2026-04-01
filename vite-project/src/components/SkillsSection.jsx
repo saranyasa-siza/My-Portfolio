@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 
 const skills = [
   {
@@ -77,6 +78,9 @@ export const SkillsSection = () => {
     if (typeof window === "undefined") return false;
     return document.documentElement.classList.contains("dark");
   });
+
+  const headingRef = useScrollReveal();
+  const carouselRef = useScrollReveal();
 
   useEffect(() => {
     // Block transitions on first paint to prevent flash
@@ -227,12 +231,13 @@ export const SkillsSection = () => {
         .sk-carousel:active { cursor: grabbing; }
       `}</style>
 
-      <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+      <h2 ref={headingRef} className="reveal text-3xl md:text-4xl font-bold mb-12 text-center">
         My <span className="text-primary">Skills</span>
       </h2>
 
       <div
-        className="sk-carousel"
+        ref={carouselRef}
+        className="reveal sk-carousel"
         style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 920, overflow: "visible", padding: "20px 0" }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
