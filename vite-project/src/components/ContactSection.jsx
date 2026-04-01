@@ -5,8 +5,8 @@ import { useState, useRef } from "react";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import emailjs from "@emailjs/browser";
 
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? "service_7wz6z7r";
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID ?? "template_aaxe48x";
 
 export const ContactSection = () => {
   const { toast } = useToast();
