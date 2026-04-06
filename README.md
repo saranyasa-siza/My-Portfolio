@@ -141,7 +141,3 @@ VITE_EMAILJS_PUBLIC_KEY=your_public_key
 - **Contact email** — update EmailJS template to forward to your email
 
 ---
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
